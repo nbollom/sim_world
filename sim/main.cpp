@@ -89,7 +89,7 @@ int main(int, char**) {
 
     float xscale, yscale;
     glfwGetWindowContentScale(window, &xscale, &yscale);
-    io.FontGlobalScale = xscale;
+    io.FontGlobalScale = xscale * 0.75f;
 
     previousTime = glfwGetTime();
 
@@ -107,15 +107,16 @@ int main(int, char**) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        double currentTime = glfwGetTime();
+        frameCount++;
+        // If a second has passed.
+        if ( currentTime - previousTime >= 1.0 ) {
+            fps = frameCount;
+            frameCount = 0;
+            previousTime = currentTime;
+        }
         if (show_fps) {
-            double currentTime = glfwGetTime();
-            frameCount++;
-            // If a second has passed.
-            if ( currentTime - previousTime >= 1.0 ) {
-                fps = frameCount;
-                frameCount = 0;
-                previousTime = currentTime;
-            }
+            ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
             ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus);
             ImGui::Text("%3d", fps);
             ImGui::End();
