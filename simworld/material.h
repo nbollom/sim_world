@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <string>
+#include "database.h"
 
 class Material {
 
@@ -14,8 +15,6 @@ private:
     uint32_t _id;
     std::string _name;
     std::string _description;
-
-    static bool db_checked;
 
 public:
     Material();
@@ -31,11 +30,11 @@ public:
     void setDescription(std::string description);
 
     // DB
-    void Save();
-    static Material* Load(uint32_t id);
+    void Save(Database *db = nullptr);
+    static Material* Load(uint32_t id, Database *db = nullptr);
 
 private:
-    static void CheckAndUpdateDBTable();
+    static void CheckAndUpdateDBTable(Database *db);
 
 };
 
