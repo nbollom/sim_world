@@ -16,16 +16,15 @@ Database::Database(const std::string& db_file) {
         throw std::runtime_error("Failed to open database");
     }
 
-    ExecStatement("\
-CREATE TABLE IF NOT EXISTS _Types_ ( \
-Name TEXT, \
-Version INTEGER \
-);");
+    ExecStatement("CREATE TABLE IF NOT EXISTS _Types_ ("
+                  "Name TEXT, "
+                  "Version INTEGER);");
 
-    // TODO: populate _type_registry map
     Query *query = PrepareQuery("SELECT Name, Version FROM _Types_");
     while (query->Next()) {
-        
+        std::string name = query->GetString(0);
+        int version = query->GetInt(1);
+        _type_registry[name] = version;
     }
 }
 
@@ -46,6 +45,11 @@ int Database::GetTypeVersion(const std::string& type_name) {
 
 void Database::UpdateTypeVersion(const std::string& type_name, int version) {
     _type_registry[type_name] = version;
+    Query *query = PrepareQuery("INSERT INTO _Types_ (Name, Version) VALUES(?, ?);");
+    query->BindString(1, type_name);
+    query->BindInt(2, version);
+    query->Next();
+    delete query;
 }
 
 Query * Database::PrepareQuery(const std::string &sql) {

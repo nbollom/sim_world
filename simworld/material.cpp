@@ -54,16 +54,13 @@ Material * Material::Load(uint32_t id, Database *db) {
 #define CURRENT_VERSION 1
 
 void Material::CheckAndUpdateDBTable(Database *db) {
-    // TODO: check registry to see if table exists/latest version
     int db_version = db->GetTypeVersion("Material");
     bool updated = false;
     if (db_version < 1) {
-        db->ExecStatement("\
-CREATE TABLE IF NOT EXISTS Material ( \
-ID INTEGER PRIMARY KEY AUTOINCREMENT, \
-Name TEXT, \
-Description TEXT \
-);");
+        db->ExecStatement("CREATE TABLE IF NOT EXISTS Material ("
+                          "ID INTEGER PRIMARY KEY AUTOINCREMENT, "
+                          "Name TEXT, "
+                          "Description TEXT);");
         updated = true;
     }
 
