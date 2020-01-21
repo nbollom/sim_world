@@ -1,9 +1,3 @@
-#include <simworld/simworld.h>
-
-// dear imgui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
-// If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
-// (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -13,21 +7,31 @@
 #include <GLFW/glfw3.h>
 #include <functional>
 
-// Sate Variables
+#include <simworld/simworld.h>
+#include "editor.h"
+
+// State Variables
+int width = 1270;
+int height = 720;
 bool show_fps = false;
 double previousTime = 0;
 int frameCount = 0;
 int fps = 0;
-bool show_editor = true; // TODO: Set to false when gameplay working with key combo to show
+Editor *editor = new Editor();
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
+static void glfw_resize_callback(GLFWwindow *window, int new_width, int new_height) {
+    width = new_width;
+    height = new_height;
+}
+
 static void glfw_key_callback (GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_E && mods == (GLFW_MOD_CONTROL | GLFW_MOD_SHIFT)) {
-            show_editor = !show_editor;
+            editor->ToggleVisibility();
         }
         else if (key == GLFW_KEY_F10) {
             show_fps = !show_fps;
@@ -52,13 +56,15 @@ int main(int, char**) {
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "SimWorld", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(width, height, "SimWorld", nullptr, nullptr);
     if (window == nullptr) {
         return 1;
     }
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
     glfwSetKeyCallback(window, glfw_key_callback);
+    glfwSetWindowSizeCallback(window, glfw_resize_callback);
+    glfwGetWindowSize(window, &width, &height); // Size can change due to monitor size/scaling so update variables
 
     // Initialize OpenGL loader
     bool err = gl3wInit() != 0;
@@ -93,6 +99,9 @@ int main(int, char**) {
 
     previousTime = glfwGetTime();
 
+    Database *shared_db = Database::Shared();
+    shared_db->InitializeDatabase();
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Poll and handle events (inputs, window resize, etc.)
@@ -122,27 +131,8 @@ int main(int, char**) {
             ImGui::End();
         }
 
-        if (show_editor) {
-            if (ImGui::Begin("Data Editor", &show_editor)) {
-                // Add controls only if not minimised to save cpu cycles
-                if (ImGui::BeginTabBar("Editor Tabs", ImGuiTabBarFlags_None)) {
-                    if (ImGui::BeginTabItem("Materials")) {
-                        ImGui::Text("Placeholder");
-                        ImGui::EndTabItem();
-                    }
-                    if (ImGui::BeginTabItem("Tiles")) {
-                        ImGui::Text("Placeholder");
-                        ImGui::EndTabItem();
-                    }
-                    if (ImGui::BeginTabItem("Objects")) {
-                        ImGui::Text("Placeholder");
-                        ImGui::EndTabItem();
-                    }
-                    ImGui::EndTabBar();
-                }
-            }
-            ImGui::End();
-        }
+        // TODO: EDITOR
+        editor->Draw((float)width, (float)height);
 
         // Rendering
         ImGui::Render();

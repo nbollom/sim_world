@@ -24,9 +24,12 @@ public:
     static Database *Shared();
     void Close();
 
-    int GetTypeVersion(const std::string& type_name);
+    void InitializeDatabase();
+
+private:
     void UpdateTypeVersion(const std::string& type_name, int version);
 
+public:
     Query *PrepareQuery(const std::string &sql);
     int ExecStatement(const std::string &sql);
 };

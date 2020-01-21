@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <thread>
 #include <chrono>
+#include <cstring>
 
 Query::Query(sqlite3_stmt *statement) : _statement(statement), _done(false) {
 
@@ -66,7 +67,10 @@ bool Query::Next() {
     }
     if (result == SQLITE_ERROR || result == SQLITE_MISUSE) {
         sqlite3 *db = sqlite3_db_handle(_statement);
-        throw std::runtime_error(sqlite3_errmsg(db));
+        const char *db_error = sqlite3_errmsg(db);
+        char error[512];
+        sprintf(error, "SQLITE query error: %s", db_error);
+        throw std::runtime_error(error);
     }
     _done = (result == SQLITE_DONE);
     return !_done;

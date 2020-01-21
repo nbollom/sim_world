@@ -7,6 +7,9 @@
 #include <stdexcept>
 #include "database.h"
 
+// Database Class Imports
+#include "material.h"
+
 Database* Database::_shared_instance = nullptr;
 
 Database::Database(const std::string& db_file) {
@@ -17,7 +20,7 @@ Database::Database(const std::string& db_file) {
     }
 
     ExecStatement("CREATE TABLE IF NOT EXISTS _Types_ ("
-                  "Name TEXT, "
+                  "Name TEXT PRIMARY KEY, "
                   "Version INTEGER);");
 
     Query *query = PrepareQuery("SELECT Name, Version FROM _Types_");
@@ -26,6 +29,7 @@ Database::Database(const std::string& db_file) {
         int version = query->GetInt(1);
         _type_registry[name] = version;
     }
+    delete query;
 }
 
 Database * Database::Shared() {
@@ -39,13 +43,43 @@ void Database::Close() {
     sqlite3_close(_db);
 }
 
-int Database::GetTypeVersion(const std::string& type_name) {
-    return _type_registry[type_name];
+void Database::InitializeDatabase() {
+    std::string type_name;
+    int current_version;
+    int db_version;
+
+    // Run all updates in a transaction
+    ExecStatement("BEGIN TRANSACTION;");
+
+    try {
+        // Material
+        type_name = Material::GetClassName();
+        current_version = Material::GetCurrentVersion();
+        db_version = _type_registry[type_name];
+        if (current_version != db_version) {
+            Material::UpdateInDB(this, db_version);
+            UpdateTypeVersion(type_name, current_version);
+        }
+    }
+    catch (std::exception &error) {
+        // If there was an error then rollback the updates and rethrow exception
+        ExecStatement("ROLLBACK TRANSACTION;");
+        throw;
+    }
+    // all went well so commit the transaction
+    ExecStatement("COMMIT TRANSACTION;");
 }
 
 void Database::UpdateTypeVersion(const std::string& type_name, int version) {
+    int old_version = _type_registry[type_name];
     _type_registry[type_name] = version;
-    Query *query = PrepareQuery("INSERT INTO _Types_ (Name, Version) VALUES(?, ?);");
+    Query *query;
+    if (old_version == 0) {
+        query = PrepareQuery("INSERT INTO _Types_ (Name, Version) VALUES(?, ?);");
+    }
+    else {
+        query = PrepareQuery("UPDATE _Types_ SET Version = ? WHERE Name = ?");
+    }
     query->BindString(1, type_name);
     query->BindInt(2, version);
     query->Next();
