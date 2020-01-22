@@ -35,6 +35,7 @@ void Editor::Draw(float width, float height) {
                     _editor_types.size(),
                     15
             );
+            ImGui::PopItemWidth();
         }
         ImGui::End();
     }

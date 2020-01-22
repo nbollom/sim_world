@@ -8,6 +8,7 @@
 #include <functional>
 
 #include <simworld/simworld.h>
+#include "main_menu.h"
 #include "editor.h"
 
 // State Variables
@@ -18,6 +19,7 @@ double previousTime = 0;
 int frameCount = 0;
 int fps = 0;
 Editor *editor = new Editor();
+MainMenu *main_menu = new MainMenu();
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -102,6 +104,8 @@ int main(int, char**) {
     Database *shared_db = Database::Shared();
     shared_db->InitializeDatabase();
 
+    main_menu->Show();
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Poll and handle events (inputs, window resize, etc.)
@@ -131,7 +135,7 @@ int main(int, char**) {
             ImGui::End();
         }
 
-        // TODO: EDITOR
+        main_menu->Draw((float)width, (float)height);
         editor->Draw((float)width, (float)height);
 
         // Rendering
