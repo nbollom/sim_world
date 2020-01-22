@@ -80,6 +80,10 @@ int main(int, char**) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
+    float xscale, yscale;
+    glfwGetWindowContentScale(window, &xscale, &yscale);
+    io.FontGlobalScale = xscale * 0.75f;
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
@@ -92,10 +96,6 @@ int main(int, char**) {
     io.Fonts->AddFontDefault();
     //ImFont* font = io.Fonts->AddFontFromFileTTF("font.ttf", 18.0f);
     //IM_ASSERT(font != NULL);
-
-    float xscale, yscale;
-    glfwGetWindowContentScale(window, &xscale, &yscale);
-    io.FontGlobalScale = xscale * 0.75f;
 
     previousTime = glfwGetTime();
 
