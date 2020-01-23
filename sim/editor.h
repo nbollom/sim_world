@@ -9,17 +9,17 @@
 
 #include <vector>
 #include <string>
-#include "window.h"
+#include "menu.h"
 
-class Editor : public Window {
+class Editor : public Menu {
 
 private:
     std::vector<std::string> _editor_types;
     int _editor_current_item;
 
 public:
-    Editor();
-    void Draw(float width, float height) override;
+    Editor(State *state);
+    void Draw() override;
 
 };
 

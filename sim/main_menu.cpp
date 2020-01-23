@@ -5,16 +5,18 @@
 #include <imgui.h>
 #include "main_menu.h"
 
-MainMenu::MainMenu() {
-
+MainMenu::MainMenu(State *state) : Menu(state) {
+    _has_world = false;
 }
 
 void MainMenu::CreateNewWorld() {
 
 }
 
-void MainMenu::Draw(float width, float height) {
+void MainMenu::Draw() {
     if (_visible) {
+        float width = (float)_state->width;
+        float height = (float)_state->height;
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
         if (ImGui::Begin("##MainMenu", &_visible,
@@ -51,7 +53,7 @@ void MainMenu::Draw(float width, float height) {
 
             }
             if (ImGui::Button("Exit", ImVec2(button_width, button_height))) {
-                // TODO: pass quit event back to main
+                _state->should_quit = true;
             }
             ImGui::Indent(0);
 

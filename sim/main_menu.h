@@ -5,9 +5,9 @@
 #ifndef SIMULATOR_MAIN_MENU_H
 #define SIMULATOR_MAIN_MENU_H
 
-#include "window.h"
+#include "menu.h"
 
-class MainMenu : public Window {
+class MainMenu : public Menu {
 
 private:
     bool _has_world;
@@ -15,8 +15,8 @@ private:
     void CreateNewWorld();
 
 public:
-    MainMenu();
-    void Draw(float width, float height) override;
+    MainMenu(State *state);
+    void Draw() override;
 
 };
 

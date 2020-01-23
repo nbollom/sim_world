@@ -8,27 +8,22 @@
 #include <functional>
 
 #include <simworld/simworld.h>
+#include "state.h"
 #include "main_menu.h"
 #include "editor.h"
+#include "menu_stack.h"
 
-// State Variables
-// TODO: Move state into a struct that can be passed around
-int width = 1270;
-int height = 720;
-bool show_fps = false;
-double previousTime = 0;
-int frameCount = 0;
-int fps = 0;
-Editor *editor = new Editor();
-MainMenu *main_menu = new MainMenu();
+State state;
+Editor *editor;
+MenuStack *menu_stack;
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
 static void glfw_resize_callback(GLFWwindow *window, int new_width, int new_height) {
-    width = new_width;
-    height = new_height;
+    state.width = new_width;
+    state.height = new_height;
 }
 
 static void glfw_key_callback (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -37,7 +32,7 @@ static void glfw_key_callback (GLFWwindow* window, int key, int scancode, int ac
             editor->ToggleVisibility();
         }
         else if (key == GLFW_KEY_F10) {
-            show_fps = !show_fps;
+            state.show_fps = !state.show_fps;
         }
     }
 }
@@ -59,7 +54,7 @@ int main(int, char**) {
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(width, height, "SimWorld", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(state.width, state.height, "SimWorld", nullptr, nullptr);
     if (window == nullptr) {
         return 1;
     }
@@ -67,7 +62,7 @@ int main(int, char**) {
     glfwSwapInterval(1); // Enable vsync
     glfwSetKeyCallback(window, glfw_key_callback);
     glfwSetWindowSizeCallback(window, glfw_resize_callback);
-    glfwGetWindowSize(window, &width, &height); // Size can change due to monitor size/scaling so update variables
+    glfwGetWindowSize(window, &state.width, &state.height); // Size can change due to monitor size/scaling so update variables
 
     // Initialize OpenGL loader
     bool err = gl3wInit() != 0;
@@ -103,12 +98,16 @@ int main(int, char**) {
     //ImFont* font = io.Fonts->AddFontFromFileTTF("font.ttf", 18.0f);
     //IM_ASSERT(font != NULL);
 
-    previousTime = glfwGetTime();
+    state.previousTime = glfwGetTime();
 
     Database *shared_db = Database::Shared();
     shared_db->InitializeDatabase();
 
+    editor = new Editor(&state);
+    MainMenu *main_menu = new MainMenu(&state);
     main_menu->Show();
+    menu_stack = MenuStack::Shared();
+    menu_stack->PushMenu(main_menu);
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -125,22 +124,22 @@ int main(int, char**) {
         ImGui::NewFrame();
 
         double currentTime = glfwGetTime();
-        frameCount++;
+        state.frameCount++;
         // If a second has passed.
-        if ( currentTime - previousTime >= 1.0 ) {
-            fps = frameCount;
-            frameCount = 0;
-            previousTime = currentTime;
+        if ( currentTime - state.previousTime >= 1.0 ) {
+            state.fps = state.frameCount;
+            state.frameCount = 0;
+            state.previousTime = currentTime;
         }
-        if (show_fps) {
+        if (state.show_fps) {
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
             ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus);
-            ImGui::Text("%3d", fps);
+            ImGui::Text("%3d", state.fps);
             ImGui::End();
         }
 
-        main_menu->Draw((float)width, (float)height);
-        editor->Draw((float)width, (float)height);
+        menu_stack->Draw();
+        editor->Draw();
 
         // Rendering
         ImGui::Render();
@@ -152,9 +151,16 @@ int main(int, char**) {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
+
+        if (state.should_quit) {
+            glfwSetWindowShouldClose(window, true);
+        }
     }
 
     // Cleanup
+    menu_stack->Clear();
+    delete editor;
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

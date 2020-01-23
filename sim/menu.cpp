@@ -4,20 +4,20 @@
 // 22-01-2020
 //
 
-#include "window.h"
+#include "menu.h"
 
-Window::Window() {
+Menu::Menu(State *state) : _state(state) {
     _visible = false;
 }
 
-void Window::Show() {
+void Menu::Show() {
     _visible = true;
 }
 
-void Window::Hide() {
+void Menu::Hide() {
     _visible = false;
 }
 
-void Window::ToggleVisibility() {
+void Menu::ToggleVisibility() {
     _visible = !_visible;
 }

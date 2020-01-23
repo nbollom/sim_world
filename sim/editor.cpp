@@ -7,7 +7,7 @@
 #include "editor.h"
 #include "imgui.h"
 
-Editor::Editor() : Window() {
+Editor::Editor(State *state) : Menu(state) {
     _editor_types = {
             "Materials",
             "Test1",
@@ -16,8 +16,10 @@ Editor::Editor() : Window() {
     _editor_current_item = 0;
 }
 
-void Editor::Draw(float width, float height) {
+void Editor::Draw() {
     if (_visible) {
+        float width = _state->width;
+        float height = _state->height;
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(width - 20, height - 20), ImGuiCond_Always);
         if (ImGui::Begin("Data Editors", &_visible)) {
