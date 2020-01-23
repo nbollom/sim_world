@@ -12,6 +12,8 @@ class MainMenu : public Window {
 private:
     bool _has_world;
 
+    void CreateNewWorld();
+
 public:
     MainMenu();
     void Draw(float width, float height) override;

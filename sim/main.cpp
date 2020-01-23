@@ -12,6 +12,7 @@
 #include "editor.h"
 
 // State Variables
+// TODO: Move state into a struct that can be passed around
 int width = 1270;
 int height = 720;
 bool show_fps = false;
@@ -84,11 +85,14 @@ int main(int, char**) {
 
     float xscale, yscale;
     glfwGetWindowContentScale(window, &xscale, &yscale);
-    io.FontGlobalScale = xscale * 0.75f;
+#if defined(__APPLE__)
+    io.FontGlobalScale = xscale * 0.75;
+#else
+    io.FontGlobalScale = xscale * 1.5;
+#endif
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
 
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
