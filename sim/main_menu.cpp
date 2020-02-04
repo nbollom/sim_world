@@ -38,19 +38,23 @@ void MainMenu::Draw() {
                 CreateNewWorld();
             }
             if (!_has_world) {
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.2f);
             }
             if (ImGui::Button("New Game", ImVec2(button_width, button_height))) {
-
+                if (_has_world) {
+                    // TODO: Show new game screen
+                }
             }
             if (ImGui::Button("Load Game", ImVec2(button_width, button_height))) {
-
+                if (_has_world) {
+                    // TODO: Show load game screen
+                }
             }
             if (!_has_world) {
                 ImGui::PopStyleVar();
             }
             if (ImGui::Button("Settings", ImVec2(button_width, button_height))) {
-
+                // TODO: Show settings screen
             }
             if (ImGui::Button("Exit", ImVec2(button_width, button_height))) {
                 _state->should_quit = true;
