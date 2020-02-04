@@ -10,9 +10,9 @@
 class MainMenu : public Menu {
 
 private:
-    bool _has_world;
+    bool _has_saves;
 
-    void CreateNewWorld();
+    void NewGame();
 
 public:
     MainMenu(State *state);

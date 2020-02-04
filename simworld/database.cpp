@@ -9,6 +9,7 @@
 
 // Database Class Imports
 #include "material.h"
+#include "world_type.h"
 
 Database* Database::_shared_instance = nullptr;
 
@@ -58,6 +59,15 @@ void Database::InitializeDatabase() {
         db_version = _type_registry[type_name];
         if (current_version != db_version) {
             Material::UpdateInDB(this, db_version);
+            UpdateTypeVersion(type_name, current_version);
+        }
+
+        // WorldType
+        type_name = WorldType::GetClassName();
+        current_version = Material::GetCurrentVersion();
+        db_version = _type_registry[type_name];
+        if (current_version != db_version) {
+            WorldType::UpdateInDB(this, db_version);
             UpdateTypeVersion(type_name, current_version);
         }
     }

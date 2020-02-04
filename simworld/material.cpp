@@ -7,6 +7,7 @@
 #include <utility>
 
 Material::Material() {
+    _id = 0;
 }
 
 Material::Material(uint32_t id, std::string name, std::string description) : _id(id), _name(std::move(name)), _description(std::move(description)) {
@@ -79,6 +80,7 @@ std::vector<Material*> Material::LoadAll(Database *db) {
         Material *material = new Material(id, name, description);
         materials.push_back(material);
     }
+    delete query;
     return materials;
 }
 
@@ -95,6 +97,7 @@ void Material::UpdateInDB(Database *db, int db_version) {
         db->ExecStatement("CREATE TABLE IF NOT EXISTS Material ("
                           "ID INTEGER PRIMARY KEY AUTOINCREMENT, "
                           "Name TEXT, "
-                          "Description TEXT);");
+                          "Description TEXT);"
+                          );
     }
 }

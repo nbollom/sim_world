@@ -80,6 +80,7 @@ int main(int, char**) {
 
     float xscale, yscale;
     glfwGetWindowContentScale(window, &xscale, &yscale);
+    // TODO: throw this away and make setting for ui scaling
 #if defined(__APPLE__)
     io.FontGlobalScale = xscale * 0.75;
 #else

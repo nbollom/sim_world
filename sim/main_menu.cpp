@@ -6,10 +6,10 @@
 #include "main_menu.h"
 
 MainMenu::MainMenu(State *state) : Menu(state) {
-    _has_world = false;
+    _has_saves = false;
 }
 
-void MainMenu::CreateNewWorld() {
+void MainMenu::NewGame() {
 
 }
 
@@ -34,23 +34,18 @@ void MainMenu::Draw() {
             ImGui::SetCursorPosX((width / 2) - (text_width / 2));
             ImGui::Text("%s", text);
             ImGui::Indent((width / 2) - (button_width / 2));
-            if (ImGui::Button("New World", ImVec2(button_width, button_height))) {
-                CreateNewWorld();
+            if (ImGui::Button("New Game", ImVec2(button_width, button_height))) {
+
             }
-            if (!_has_world) {
+            if (!_has_saves) {
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.2f);
             }
-            if (ImGui::Button("New Game", ImVec2(button_width, button_height))) {
-                if (_has_world) {
-                    // TODO: Show new game screen
-                }
-            }
             if (ImGui::Button("Load Game", ImVec2(button_width, button_height))) {
-                if (_has_world) {
+                if (_has_saves) {
                     // TODO: Show load game screen
                 }
             }
-            if (!_has_world) {
+            if (!_has_saves) {
                 ImGui::PopStyleVar();
             }
             if (ImGui::Button("Settings", ImVec2(button_width, button_height))) {
