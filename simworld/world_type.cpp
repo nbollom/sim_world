@@ -87,7 +87,7 @@ void WorldType::Save(Database *db) {
         query->BindInt(6, _mountains);
     }
     else {
-        query = db->PrepareQuery("UPDATE WorldType SET Name = ?, Description = ?, PercentLand = ?, AvgLandSize = ?, Rivers = ?, Mountains = ? WHERE ID = ?");
+        query = db->PrepareQuery("UPDATE WorldType SET Name = ?, Description = ?, PercentLand = ?, AvgLandSize = ?, Rivers = ?, Mountains = ? WHERE ID = ?;");
         query->BindString(1, _name);
         query->BindString(2, _description);
         query->BindInt(3, _percent_land);
@@ -104,7 +104,7 @@ WorldType * WorldType::Load(uint32_t id, Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    Query *query = db->PrepareQuery("SELECT Name, Description, PercentLand, AvgLandSize, Rivers, Mountains FROM WorldType WHERE ID = ?");
+    Query *query = db->PrepareQuery("SELECT Name, Description, PercentLand, AvgLandSize, Rivers, Mountains FROM WorldType WHERE ID = ?;");
     query->BindInt(1, id);
     query->Next();
     std::string name = query->GetString(0);
@@ -151,10 +151,10 @@ void WorldType::UpdateInDB(Database *db, int db_version) {
         db->ExecStatement("CREATE TABLE IF NOT EXISTS WorldType ("
                           "ID INTEGER PRIMARY KEY AUTOINCREMENT, "
                           "Name TEXT, "
-                          "Description TEXT,"
-                          "PercentLand INTEGER,"
-                          "AvgLandSize INTEGER,"
-                          "Rivers INTEGER,"
+                          "Description TEXT, "
+                          "PercentLand INTEGER, "
+                          "AvgLandSize INTEGER, "
+                          "Rivers INTEGER, "
                           "Mountains INTEGER);"
                           );
     }

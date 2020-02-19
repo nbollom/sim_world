@@ -7,8 +7,8 @@ find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
 set(SIM_FILES
-        editor.cpp
-        editor.h
+        editor_menu.cpp
+        editor_menu.h
         main.cpp
         main_menu.cpp
         main_menu.h
@@ -16,7 +16,7 @@ set(SIM_FILES
         menu.cpp
         menu_stack.cpp
         menu_stack.h
-        state.h)
+        state.h settings_menu.cpp settings_menu.h)
 
 add_executable(sim ${SIM_FILES})
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/third_party/imgui ${CMAKE_SOURCE_DIR}/third_party/gl3w/include ${OPENGL_INCLUDE_DIR})

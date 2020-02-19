@@ -4,6 +4,8 @@
 
 #include <imgui.h>
 #include "main_menu.h"
+#include "settings_menu.h"
+#include "menu_stack.h"
 
 MainMenu::MainMenu(State *state) : Menu(state) {
     _has_saves = false;
@@ -50,6 +52,10 @@ void MainMenu::Draw() {
             }
             if (ImGui::Button("Settings", ImVec2(button_width, button_height))) {
                 // TODO: Show settings screen
+                SettingsMenu *settings_menu = new SettingsMenu(_state);
+                settings_menu->Show();
+                MenuStack *menu_stack = MenuStack::Shared();
+                menu_stack->PushMenu(settings_menu);
             }
             if (ImGui::Button("Exit", ImVec2(button_width, button_height))) {
                 _state->should_quit = true;

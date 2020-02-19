@@ -10,6 +10,7 @@
 // Database Class Imports
 #include "material.h"
 #include "world_type.h"
+#include "world.h"
 
 Database* Database::_shared_instance = nullptr;
 
@@ -45,31 +46,13 @@ void Database::Close() {
 }
 
 void Database::InitializeDatabase() {
-    std::string type_name;
-    int current_version;
-    int db_version;
-
     // Run all updates in a transaction
     ExecStatement("BEGIN TRANSACTION;");
 
     try {
-        // Material
-        type_name = Material::GetClassName();
-        current_version = Material::GetCurrentVersion();
-        db_version = _type_registry[type_name];
-        if (current_version != db_version) {
-            Material::UpdateInDB(this, db_version);
-            UpdateTypeVersion(type_name, current_version);
-        }
-
-        // WorldType
-        type_name = WorldType::GetClassName();
-        current_version = Material::GetCurrentVersion();
-        db_version = _type_registry[type_name];
-        if (current_version != db_version) {
-            WorldType::UpdateInDB(this, db_version);
-            UpdateTypeVersion(type_name, current_version);
-        }
+        CheckUpdateType<Material>();
+        CheckUpdateType<WorldType>();
+        CheckUpdateType<World>();
     }
     catch (std::exception &error) {
         // If there was an error then rollback the updates and rethrow exception
@@ -78,6 +61,17 @@ void Database::InitializeDatabase() {
     }
     // all went well so commit the transaction
     ExecStatement("COMMIT TRANSACTION;");
+}
+
+template <typename T>
+void Database::CheckUpdateType() {
+    std::string type_name = T::GetClassName();
+    int current_version = T::GetCurrentVersion();
+    int db_version = _type_registry[type_name];
+    if (current_version != db_version) {
+        T::UpdateInDB(this, db_version);
+        UpdateTypeVersion(type_name, current_version);
+    }
 }
 
 void Database::UpdateTypeVersion(const std::string& type_name, int version) {

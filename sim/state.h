@@ -13,6 +13,7 @@ struct State {
     int frameCount = 0;
     int fps = 0;
     bool should_quit = false;
+    float font_scale = 1.0f;
 };
 
 #endif //SIMULATOR_STATE_H

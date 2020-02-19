@@ -4,19 +4,18 @@
 // 21-01-2020
 //
 
-#include "editor.h"
+#include "editor_menu.h"
 #include "imgui.h"
 
-Editor::Editor(State *state) : Menu(state) {
+EditorMenu::EditorMenu(State *state) : Menu(state) {
     _editor_types = {
             "Materials",
-            "Test1",
-            "Test2"
+            "WorldTypes"
     };
     _editor_current_item = 0;
 }
 
-void Editor::Draw() {
+void EditorMenu::Draw() {
     if (_visible) {
         float width = _state->width;
         float height = _state->height;

@@ -25,6 +25,8 @@ public:
     void Close();
 
     void InitializeDatabase();
+    template <typename T>
+    void CheckUpdateType();
 
 private:
     void UpdateTypeVersion(const std::string& type_name, int version);

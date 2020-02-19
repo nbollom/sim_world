@@ -8,6 +8,7 @@
 #define SIMULATOR_WORLD_H
 
 #include <string>
+#include <cstdint>
 #include "database.h"
 
 class World {

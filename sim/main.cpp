@@ -10,11 +10,11 @@
 #include <simworld/simworld.h>
 #include "state.h"
 #include "main_menu.h"
-#include "editor.h"
+#include "editor_menu.h"
 #include "menu_stack.h"
 
 State state;
-Editor *editor;
+EditorMenu *editor;
 MenuStack *menu_stack;
 
 static void glfw_error_callback(int error, const char* description) {
@@ -35,6 +35,16 @@ static void glfw_key_callback (GLFWwindow* window, int key, int scancode, int ac
             state.show_fps = !state.show_fps;
         }
     }
+}
+
+void LoadFonts(ImGuiIO& io) {
+    io.FontGlobalScale = state.font_scale;
+    // Load Font
+    io.Fonts->ClearFonts();
+    io.Fonts->AddFontDefault();
+    //ImFont* font = io.Fonts->AddFontFromFileTTF("font.ttf", 18.0f);
+    //IM_ASSERT(font != NULL);
+    io.Fonts->Build();
 }
 
 int main(int, char**) {
@@ -78,14 +88,7 @@ int main(int, char**) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    float xscale, yscale;
-    glfwGetWindowContentScale(window, &xscale, &yscale);
-    // TODO: throw this away and make setting for ui scaling
-#if defined(__APPLE__)
-    io.FontGlobalScale = xscale * 0.75;
-#else
-    io.FontGlobalScale = xscale * 1.5;
-#endif
+    LoadFonts(io);
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -94,17 +97,12 @@ int main(int, char**) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    // Load Font
-    io.Fonts->AddFontDefault();
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("font.ttf", 18.0f);
-    //IM_ASSERT(font != NULL);
-
     state.previousTime = glfwGetTime();
 
     Database *shared_db = Database::Shared();
     shared_db->InitializeDatabase();
 
-    editor = new Editor(&state);
+    editor = new EditorMenu(&state);
     MainMenu *main_menu = new MainMenu(&state);
     main_menu->Show();
     menu_stack = MenuStack::Shared();
@@ -118,6 +116,9 @@ int main(int, char**) {
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
+        if (io.FontGlobalScale != state.font_scale) {
+            io.FontGlobalScale = state.font_scale;
+        }
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();

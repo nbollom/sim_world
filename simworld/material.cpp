@@ -45,7 +45,7 @@ void Material::Save(Database *db) {
         query->BindString(2, _description);
     }
     else {
-        query = db->PrepareQuery("UPDATE Material SET Name = ?, Description = ? WHERE ID = ?");
+        query = db->PrepareQuery("UPDATE Material SET Name = ?, Description = ? WHERE ID = ?;");
         query->BindString(1, _name);
         query->BindString(2, _description);
         query->BindInt(3, _id);
@@ -58,7 +58,7 @@ Material * Material::Load(uint32_t id, Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    Query *query = db->PrepareQuery("SELECT Name, Description FROM Material WHERE ID = ?");
+    Query *query = db->PrepareQuery("SELECT Name, Description FROM Material WHERE ID = ?;");
     query->BindInt(1, id);
     query->Next();
     std::string name = query->GetString(0);
