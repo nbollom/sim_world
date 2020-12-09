@@ -16,8 +16,24 @@ set(SIM_FILES
         menu.cpp
         menu_stack.cpp
         menu_stack.h
-        state.h settings_menu.cpp settings_menu.h)
+        state.h
+        settings_menu.cpp
+        settings_menu.h
+        settings.cpp
+        settings.h
+)
+
+if (DEBUG)
+    add_definitions(-DDEBUG=1)
+endif (DEBUG)
+
 
 add_executable(sim ${SIM_FILES})
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/third_party/imgui ${CMAKE_SOURCE_DIR}/third_party/gl3w/include ${OPENGL_INCLUDE_DIR})
-target_link_libraries(sim simworld glfw ${OPENGL_gl_LIBRARY} imgui)
+include_directories(
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/third_party/imgui
+        ${CMAKE_SOURCE_DIR}/third_party/gl3w/include
+        ${CMAKE_SOURCE_DIR}/third_party/json/include
+        ${OPENGL_INCLUDE_DIR}
+)
+target_link_libraries(sim simworld glfw ${OPENGL_gl_LIBRARY} imgui nlohmann_json::nlohmann_json)

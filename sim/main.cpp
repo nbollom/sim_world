@@ -12,10 +12,13 @@
 #include "main_menu.h"
 #include "editor_menu.h"
 #include "menu_stack.h"
+#include "settings.h"
 
+Settings *settings;
 State state;
 EditorMenu *editor;
 MenuStack *menu_stack;
+bool has_focus = true;
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -26,19 +29,25 @@ static void glfw_resize_callback(GLFWwindow *window, int new_width, int new_heig
     state.height = new_height;
 }
 
+static void glfw_focus_callback(GLFWwindow *window, int focused) {
+#ifndef DEBUG
+    has_focus = focused;
+#endif
+}
+
 static void glfw_key_callback (GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_E && mods == (GLFW_MOD_CONTROL | GLFW_MOD_SHIFT)) {
             editor->ToggleVisibility();
         }
         else if (key == GLFW_KEY_F10) {
-            state.show_fps = !state.show_fps;
+            settings->show_fps = !settings->show_fps;
         }
     }
 }
 
 void LoadFonts(ImGuiIO& io) {
-    io.FontGlobalScale = state.font_scale;
+    io.FontGlobalScale = settings->font_scale;
     // Load Font
     io.Fonts->ClearFonts();
     io.Fonts->AddFontDefault();
@@ -63,8 +72,10 @@ int main(int, char**) {
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
+    settings = Settings::Shared();
+
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(state.width, state.height, "SimWorld", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(settings->window_width, settings->window_height, "SimWorld", settings->fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
     if (window == nullptr) {
         return 1;
     }
@@ -72,6 +83,7 @@ int main(int, char**) {
     glfwSwapInterval(1); // Enable vsync
     glfwSetKeyCallback(window, glfw_key_callback);
     glfwSetWindowSizeCallback(window, glfw_resize_callback);
+    glfwSetWindowFocusCallback(window, glfw_focus_callback);
     glfwGetWindowSize(window, &state.width, &state.height); // Size can change due to monitor size/scaling so update variables
 
     // Initialize OpenGL loader
@@ -104,55 +116,57 @@ int main(int, char**) {
 
     editor = new EditorMenu(&state);
     MainMenu *main_menu = new MainMenu(&state);
-    main_menu->Show();
     menu_stack = MenuStack::Shared();
     menu_stack->PushMenu(main_menu);
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
-        if (io.FontGlobalScale != state.font_scale) {
-            io.FontGlobalScale = state.font_scale;
+
+        if (has_focus) {
+            // Don't actually update / run game logic if window has lost focus
+
+            if (io.FontGlobalScale != settings->font_scale) {
+                io.FontGlobalScale = settings->font_scale;
+            }
+
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            double currentTime = glfwGetTime();
+            state.frameCount++;
+            // If a second has passed.
+            if (currentTime - state.previousTime >= 1.0) {
+                state.fps = state.frameCount;
+                state.frameCount = 0;
+                state.previousTime = currentTime;
+            }
+            if (settings->show_fps) {
+                ImVec2 text_size = ImGui::CalcTextSize("999");
+                ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
+                ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+                ImGui::SetNextWindowSize(ImVec2(text_size.x + spacing.x * 2, text_size.y + spacing.y * 2), ImGuiCond_Always);
+                ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBackground);
+                ImGui::Text("%3d", state.fps);
+                ImGui::End();
+            }
+
+            menu_stack->Draw();
+            editor->Draw();
+
+            // Rendering
+            ImGui::Render();
+            int display_w, display_h;
+            glfwGetFramebufferSize(window, &display_w, &display_h);
+            glViewport(0, 0, display_w, display_h);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+            glfwSwapBuffers(window);
         }
-
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        double currentTime = glfwGetTime();
-        state.frameCount++;
-        // If a second has passed.
-        if ( currentTime - state.previousTime >= 1.0 ) {
-            state.fps = state.frameCount;
-            state.frameCount = 0;
-            state.previousTime = currentTime;
-        }
-        if (state.show_fps) {
-            ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-            ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus);
-            ImGui::Text("%3d", state.fps);
-            ImGui::End();
-        }
-
-        menu_stack->Draw();
-        editor->Draw();
-
-        // Rendering
-        ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        glfwSwapBuffers(window);
 
         if (state.should_quit) {
             glfwSetWindowShouldClose(window, true);
@@ -169,6 +183,8 @@ int main(int, char**) {
 
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    settings->Save();
 
     return 0;
 }

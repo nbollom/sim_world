@@ -13,6 +13,7 @@ class MenuStack {
 private:
     static MenuStack *_instance;
     std::vector<Menu*> _menus;
+    Menu *Top();
 
 public:
     void Clear();

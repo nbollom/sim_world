@@ -1,3 +1,6 @@
 [submodule "third_party/entityx"]
 	path = third_party/entityx
 	url = https://github.com/alecthomas/entityx.git
+[submodule "third_party/json"]
+	path = third_party/json
+	url = https://github.com/nlohmann/json.git

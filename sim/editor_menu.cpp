@@ -21,7 +21,7 @@ void EditorMenu::Draw() {
         float height = _state->height;
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(width - 20, height - 20), ImGuiCond_Always);
-        if (ImGui::Begin("Data Editors", &_visible)) {
+        if (ImGui::Begin("Data Editors", &_visible, ImGuiWindowFlags_NoResize)) {
             // Add controls only if not minimised to save cpu cycles
             ImGui::PushItemWidth(200);
             ImGui::ListBox(

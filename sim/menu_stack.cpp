@@ -6,6 +6,14 @@
 
 MenuStack* MenuStack::_instance = nullptr;
 
+Menu* MenuStack::Top() {
+    if (!_menus.empty()) {
+        Menu *menu = _menus.back();
+        return menu;
+    }
+    return nullptr;
+}
+
 void MenuStack::Clear() {
     for (Menu *menu: _menus) {
         delete menu;
@@ -14,14 +22,23 @@ void MenuStack::Clear() {
 }
 
 void MenuStack::PushMenu(Menu *menu) {
+    Menu *last = Top();
+    if (last) {
+        last->Hide();
+    }
     _menus.push_back(menu);
+    menu->Show();
 }
 
 void MenuStack::PopMenu() {
-    if (!_menus.empty()) {
-        Menu *menu = _menus.back();
+    Menu *menu = Top();
+    if (menu) {
         _menus.pop_back();
         delete menu;
+    }
+    menu = Top();
+    if (menu) {
+        menu->Show();
     }
 }
 

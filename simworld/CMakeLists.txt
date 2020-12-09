@@ -19,7 +19,7 @@ set(SIMWORLD_FILES
         world.h
         world_type.cpp
         world_type.h
-        )
+        utils.h)
 
 add_library(simworld SHARED ${SIMWORLD_FILES})
 include_directories(${SQLite3_INCLUDE_DIR})
