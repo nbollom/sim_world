@@ -25,13 +25,12 @@ Database::Database(const std::string& db_file) {
                   "Name TEXT PRIMARY KEY, "
                   "Version INTEGER);");
 
-    Query *query = PrepareQuery("SELECT Name, Version FROM _Types_");
+    std::shared_ptr<Query> query = PrepareQuery("SELECT Name, Version FROM _Types_");
     while (query->Next()) {
         std::string name = query->GetString(0);
         int version = query->GetInt(1);
         _type_registry[name] = version;
     }
-    delete query;
 }
 
 Database * Database::Shared() {
@@ -77,7 +76,7 @@ void Database::CheckUpdateType() {
 void Database::UpdateTypeVersion(const std::string& type_name, int version) {
     int old_version = _type_registry[type_name];
     _type_registry[type_name] = version;
-    Query *query;
+    std::shared_ptr<Query> query;
     if (old_version == 0) {
         query = PrepareQuery("INSERT INTO _Types_ (Name, Version) VALUES(?, ?);");
     }
@@ -87,20 +86,17 @@ void Database::UpdateTypeVersion(const std::string& type_name, int version) {
     query->BindString(1, type_name);
     query->BindInt(2, version);
     query->Next();
-    delete query;
 }
 
-Query * Database::PrepareQuery(const std::string &sql) {
+std::shared_ptr<Query> Database::PrepareQuery(const std::string &sql) {
     sqlite3_stmt *statement;
     sqlite3_prepare(_db, sql.c_str(), sql.length(), &statement, nullptr);
-    Query *query = new Query(statement);
-    return query;
+    return std::make_shared<Query>(statement);
 }
 
 int Database::ExecStatement(const std::string &sql) {
-    Query *query = PrepareQuery(sql);
+    auto query = PrepareQuery(sql);
     query->Next();
     int result = query->GetInt(0);
-    delete query;
     return result;
 }

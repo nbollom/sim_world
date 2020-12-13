@@ -16,7 +16,7 @@ protected:
     State *_state;
 
 public:
-    Menu(State *state);
+    explicit Menu(State *state);
     virtual ~Menu() = default;
     void Show();
     void Hide();

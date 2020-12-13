@@ -10,6 +10,7 @@
 #include <sqlite3.h>
 #include <map>
 #include <string>
+#include <memory>
 #include "query.h"
 
 class Database {
@@ -32,7 +33,7 @@ private:
     void UpdateTypeVersion(const std::string& type_name, int version);
 
 public:
-    Query *PrepareQuery(const std::string &sql);
+    std::shared_ptr<Query> PrepareQuery(const std::string &sql);
     int ExecStatement(const std::string &sql);
 };
 

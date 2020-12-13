@@ -18,11 +18,12 @@ public:
     void Load();
     void ResetToDefault();
 
-    int window_width;
-    int window_height;
-    bool fullscreen;
-    float font_scale;
-    bool show_fps;
+    int window_width{};
+    int window_height{};
+    int refresh_rate{};
+    bool fullscreen{};
+    float font_scale{};
+    bool show_fps{};
 
 };
 

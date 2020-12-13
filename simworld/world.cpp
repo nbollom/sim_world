@@ -50,7 +50,7 @@ void World::Save(Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    Query *query;
+    std::shared_ptr<Query> query;
     if (_id == 0) {
         query = db->PrepareQuery("INSERT INTO World (Name, Width, Height) VALUES (?, ?, ?);");
         query->BindString(1, _name);
@@ -65,31 +65,28 @@ void World::Save(Database *db) {
         query->BindInt(4, _id);
     }
     query->Next();
-    delete query;
 }
 
-World * World::Load(uint32_t id, Database *db) {
+std::shared_ptr<World> World::Load(uint32_t id, Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    Query *query = db->PrepareQuery("SELECT Name, Width, Height FROM World WHERE ID = ?;");
+    std::shared_ptr<Query> query = db->PrepareQuery("SELECT Name, Width, Height FROM World WHERE ID = ?;");
     query->BindInt(1, id);
     query->Next();
     std::string name = query->GetString(0);
     uint32_t width = query->GetInt(1);
     uint32_t height = query->GetInt(2);
-    delete query;
-    return new World(id, name, width, height);
+    return std::make_shared<World>(id, name, width, height);
 }
 
 void World::Delete(Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    Query *query = db->PrepareQuery("DELETE FROM World WHERE ID = ?;");
+    std::shared_ptr<Query> query = db->PrepareQuery("DELETE FROM World WHERE ID = ?;");
     query->BindInt(1, _id);
     query->Next();
-    delete query;
 }
 
 std::string World::GetClassName() {

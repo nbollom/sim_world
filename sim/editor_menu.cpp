@@ -6,37 +6,59 @@
 
 #include "editor_menu.h"
 #include "imgui.h"
+#include "material_editor_plugin.h"
+#include "world_type_editor_plugin.h"
 
 EditorMenu::EditorMenu(State *state) : Menu(state) {
-    _editor_types = {
-            "Materials",
-            "WorldTypes"
+    _dialog = nullptr;
+    _editors = {
+            {"Materials", [&](){
+                return new MaterialEditorPlugin(&_dialog, _state);
+            }},
+            {"WorldTypes", [&](){
+                return new WorldTypeEditorPlugin(&_dialog, _state);
+            }}
     };
-    _editor_current_item = 0;
+    _awaiting_save = false;
+    _current_editor_name = "";
+    _current_editor_plugin = nullptr;
 }
 
 void EditorMenu::Draw() {
     if (_visible) {
-        float width = _state->width;
-        float height = _state->height;
+        if (_dialog != nullptr) {
+            _dialog->Draw();
+        }
+        auto width = static_cast<float>(_state->width);
+        auto height = static_cast<float>(_state->height);
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(width - 20, height - 20), ImGuiCond_Always);
         if (ImGui::Begin("Data Editors", &_visible, ImGuiWindowFlags_NoResize)) {
             // Add controls only if not minimised to save cpu cycles
-            ImGui::PushItemWidth(200);
-            ImGui::ListBox(
-                    "##Editors",
-                    &_editor_current_item,
-                    [](void *data, int index, const char **out_text){
-                        std::vector<std::string> list = *static_cast<std::vector<std::string>*>(data);
-                        *out_text = list[index].c_str();
-                        return true;
-                    },
-                    &_editor_types,
-                    _editor_types.size(),
-                    15
-            );
-            ImGui::PopItemWidth();
+            if (ImGui::BeginTabBar("##Editors")) {
+                for (const auto& editor: _editors) {
+                    if (ImGui::BeginTabItem(editor.first.c_str())) {
+                        if (_current_editor_name != editor.first and !_awaiting_save) {
+                            if (_current_editor_plugin != nullptr && _current_editor_plugin->HasChanges()) {
+                                _awaiting_save = true;
+                                std::string new_name = editor.first;
+                                std::function<EditorPlugin*()> function = editor.second;
+                                _current_editor_plugin->AskSave([&, new_name, function](){
+                                    _current_editor_name = new_name;
+                                    _current_editor_plugin = function();
+                                    _awaiting_save = false;
+                                });
+                            } else {
+                                _current_editor_name = editor.first;
+                                _current_editor_plugin = editor.second();
+                            }
+                        }
+                        _current_editor_plugin->Draw();
+                        ImGui::EndTabItem();
+                    }
+                }
+                ImGui::EndTabBar();
+            }
         }
         ImGui::End();
     }

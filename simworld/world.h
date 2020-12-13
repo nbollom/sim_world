@@ -9,6 +9,7 @@
 
 #include <string>
 #include <cstdint>
+#include <memory>
 #include "database.h"
 
 class World {
@@ -36,8 +37,8 @@ public:
 
     // DB
     void Save(Database *db = nullptr);
-    static World* Load(uint32_t id, Database *db = nullptr);
     void Delete(Database *db = nullptr);
+    static std::shared_ptr<World> Load(uint32_t id, Database *db = nullptr);
     static std::string GetClassName();
     static int GetCurrentVersion();
     static void UpdateInDB(Database *db, int db_version);

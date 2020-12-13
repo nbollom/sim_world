@@ -8,10 +8,16 @@
 #define SIMULATOR_SETTINGS_MENU_H
 
 #include "menu.h"
+#include <vector>
+#import <string>
 
 class SettingsMenu : public Menu {
 
 private:
+    std::vector<std::tuple<int, int, int, std::string>> _resolutions;
+    std::string _selected_resolution;
+    bool _need_resize_window;
+    bool _was_fullscreen;
 
 public:
     explicit SettingsMenu(State *state);

@@ -12,18 +12,14 @@ MainMenu::MainMenu(State *state) : Menu(state) {
     _has_saves = false;
 }
 
-void MainMenu::NewGame() {
-
-}
-
 void MainMenu::Draw() {
     if (_visible) {
-        float width = (float)_state->width;
-        float height = (float)_state->height;
+        auto width = static_cast<float>(_state->width);
+        auto height = static_cast<float>(_state->height);
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
         if (ImGui::Begin("##MainMenu", &_visible,
-                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBackground)) {
+                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBringToFrontOnFocus)) {
             // Add controls only if not minimised to save cpu cycles
             float spacing = ImGui::GetStyle().ItemSpacing.y;
             float buttons = 1;
@@ -55,7 +51,7 @@ void MainMenu::Draw() {
             ImGui::SetCursorPosX((width / 2) - (button_width / 2));
             if (ImGui::Button("Settings", ImVec2(button_width, button_height))) {
                 // TODO: Show settings screen
-                SettingsMenu *settings_menu = new SettingsMenu(_state);
+                auto *settings_menu = new SettingsMenu(_state);
                 MenuStack *menu_stack = MenuStack::Shared();
                 menu_stack->PushMenu(settings_menu);
             }

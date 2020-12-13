@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "database.h"
 
 class WorldType {
@@ -45,8 +46,9 @@ public:
 
     // DB
     void Save(Database *db = nullptr);
-    static WorldType* Load(uint32_t id, Database *db = nullptr);
-    static std::vector<WorldType*> LoadAll(Database *db = nullptr);
+    void Delete(Database *db = nullptr);
+    static std::shared_ptr<WorldType> Load(uint32_t id, Database *db = nullptr);
+    static std::vector<std::shared_ptr<WorldType>> LoadAll(Database *db = nullptr);
     static std::string GetClassName();
     static int GetCurrentVersion();
     static void UpdateInDB(Database *db, int db_version);

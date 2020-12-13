@@ -21,7 +21,7 @@ set(SIM_FILES
         settings_menu.h
         settings.cpp
         settings.h
-)
+        editor_plugin.cpp editor_plugin.h material_editor_plugin.cpp material_editor_plugin.h dialog.cpp dialog.h world_type_editor_plugin.cpp world_type_editor_plugin.h)
 
 if (DEBUG)
     add_definitions(-DDEBUG=1)

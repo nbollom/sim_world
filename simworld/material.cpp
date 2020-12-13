@@ -38,7 +38,7 @@ void Material::Save(Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    Query *query;
+    std::shared_ptr<Query> query;
     if (_id == 0) {
         query = db->PrepareQuery("INSERT INTO Material (Name, Description) VALUES (?, ?);");
         query->BindString(1, _name);
@@ -51,36 +51,47 @@ void Material::Save(Database *db) {
         query->BindInt(3, _id);
     }
     query->Next();
-    delete query;
+    if (_id == 0) {
+        query = db->PrepareQuery("SELECT last_insert_rowid();");
+        query->Next();
+        _id = query->GetInt(0);
+    }
 }
 
-Material * Material::Load(uint32_t id, Database *db) {
+void Material::Delete(Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    Query *query = db->PrepareQuery("SELECT Name, Description FROM Material WHERE ID = ?;");
+    std::shared_ptr<Query> query = db->PrepareQuery("DELETE FROM Material WHERE ID = ?;");
+    query->BindInt(1, _id);
+    query->Next();
+}
+
+std::shared_ptr<Material> Material::Load(uint32_t id, Database *db) {
+    if (db == nullptr) {
+        db = Database::Shared();
+    }
+    std::shared_ptr<Query> query = db->PrepareQuery("SELECT Name, Description FROM Material WHERE ID = ?;");
     query->BindInt(1, id);
     query->Next();
     std::string name = query->GetString(0);
     std::string description = query->GetString(1);
-    delete query;
-    return new Material(id, name, description);
+    return std::make_shared<Material>(id, name, description);
 }
 
-std::vector<Material*> Material::LoadAll(Database *db) {
+std::vector<std::shared_ptr<Material>> Material::LoadAll(Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    std::vector<Material*> materials;
-    Query *query = db->PrepareQuery("SELECT ID, Name, Description FROM Material;");
+    std::vector<std::shared_ptr<Material>> materials;
+    std::shared_ptr<Query> query = db->PrepareQuery("SELECT ID, Name, Description FROM Material;");
     while (query->Next()) {
         int id = query->GetInt(0);
         std::string name = query->GetString(1);
         std::string description = query->GetString(2);
-        Material *material = new Material(id, name, description);
+        std::shared_ptr<Material> material = std::make_shared<Material>(id, name, description);
         materials.push_back(material);
     }
-    delete query;
     return materials;
 }
 

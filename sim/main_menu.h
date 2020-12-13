@@ -12,10 +12,8 @@ class MainMenu : public Menu {
 private:
     bool _has_saves;
 
-    void NewGame();
-
 public:
-    MainMenu(State *state);
+    explicit MainMenu(State *state);
     void Draw() override;
 
 };

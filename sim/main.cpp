@@ -56,11 +56,13 @@ void LoadFonts(ImGuiIO& io) {
     io.Fonts->Build();
 }
 
-int main(int, char**) {
+int main(int argc, char *argv[]) {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return 1;
+
+    settings = Settings::Shared();
 
     // Decide GL+GLSL versions
     // GL 3.2 + GLSL 150
@@ -71,14 +73,16 @@ int main(int, char**) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);            // 3.0+ only
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-
-    settings = Settings::Shared();
+    glfwWindowHint(GLFW_REFRESH_RATE, settings->refresh_rate);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(settings->window_width, settings->window_height, "SimWorld", settings->fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
     if (window == nullptr) {
         return 1;
     }
+    glfwSetWindowPos(window, 0, 0);
+    state.window = window;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
     glfwSetKeyCallback(window, glfw_key_callback);
@@ -102,12 +106,14 @@ int main(int, char**) {
 
     LoadFonts(io);
 
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.06f, 0.06f, 0.06f, 0.8f));
 
     state.previousTime = glfwGetTime();
 
@@ -115,9 +121,15 @@ int main(int, char**) {
     shared_db->InitializeDatabase();
 
     editor = new EditorMenu(&state);
-    MainMenu *main_menu = new MainMenu(&state);
+    auto *main_menu = new MainMenu(&state);
     menu_stack = MenuStack::Shared();
     menu_stack->PushMenu(main_menu);
+
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--editor") == 0) {
+            editor->Show();
+        }
+    }
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -143,18 +155,19 @@ int main(int, char**) {
                 state.frameCount = 0;
                 state.previousTime = currentTime;
             }
-            if (settings->show_fps) {
-                ImVec2 text_size = ImGui::CalcTextSize("999");
-                ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
-                ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-                ImGui::SetNextWindowSize(ImVec2(text_size.x + spacing.x * 2, text_size.y + spacing.y * 2), ImGuiCond_Always);
-                ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBackground);
-                ImGui::Text("%3d", state.fps);
-                ImGui::End();
-            }
 
             menu_stack->Draw();
             editor->Draw();
+
+            if (settings->show_fps) {
+                ImVec2 text_size = ImGui::CalcTextSize("999");
+                ImVec2 window_padding = ImGui::GetStyle().WindowPadding;
+                ImGui::SetNextWindowPos(ImVec2(static_cast<float>(state.width) - text_size.x - window_padding.x * 2, 0), ImGuiCond_Always);
+                ImGui::SetNextWindowSize(ImVec2(text_size.x + window_padding.x * 2, text_size.y), ImGuiCond_Always);
+                ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav);
+                ImGui::Text("%03d", state.fps);
+                ImGui::End();
+            }
 
             // Rendering
             ImGui::Render();

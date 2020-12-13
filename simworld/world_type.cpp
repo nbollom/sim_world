@@ -76,7 +76,7 @@ void WorldType::Save(Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    Query *query;
+    std::shared_ptr<Query> query;
     if (_id == 0) {
         query = db->PrepareQuery("INSERT INTO WorldType (Name, Description, PercentLand, AvgLandSize, Rivers, Mountains) VALUES (?, ?, ?, ?, ?, ?);");
         query->BindString(1, _name);
@@ -97,14 +97,22 @@ void WorldType::Save(Database *db) {
         query->BindInt(7, _id);
     }
     query->Next();
-    delete query;
 }
 
-WorldType * WorldType::Load(uint32_t id, Database *db) {
+void WorldType::Delete(Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    Query *query = db->PrepareQuery("SELECT Name, Description, PercentLand, AvgLandSize, Rivers, Mountains FROM WorldType WHERE ID = ?;");
+    std::shared_ptr<Query> query = db->PrepareQuery("DELETE FROM WorldType WHERE ID = ?;");
+    query->BindInt(1, _id);
+    query->Next();
+}
+
+std::shared_ptr<WorldType> WorldType::Load(uint32_t id, Database *db) {
+    if (db == nullptr) {
+        db = Database::Shared();
+    }
+    std::shared_ptr<Query> query = db->PrepareQuery("SELECT Name, Description, PercentLand, AvgLandSize, Rivers, Mountains FROM WorldType WHERE ID = ?;");
     query->BindInt(1, id);
     query->Next();
     std::string name = query->GetString(0);
@@ -113,16 +121,15 @@ WorldType * WorldType::Load(uint32_t id, Database *db) {
     uint8_t avg_land_size = query->GetInt(3);
     uint8_t rivers = query->GetInt(4);
     uint8_t mountains = query->GetInt(5);
-    delete query;
-    return new WorldType(id, name, description, percent_land, avg_land_size, rivers, mountains);
+    return std::make_shared<WorldType>(id, name, description, percent_land, avg_land_size, rivers, mountains);
 }
 
-std::vector<WorldType *> WorldType::LoadAll(Database *db) {
+std::vector<std::shared_ptr<WorldType>> WorldType::LoadAll(Database *db) {
     if (db == nullptr) {
         db = Database::Shared();
     }
-    std::vector<WorldType*> types;
-    Query *query = db->PrepareQuery("SELECT ID, Name, Description, PercentLand, AvgLandSize, Rivers, Mountains FROM WorldType;");
+    std::vector<std::shared_ptr<WorldType>> types;
+    std::shared_ptr<Query> query = db->PrepareQuery("SELECT ID, Name, Description, PercentLand, AvgLandSize, Rivers, Mountains FROM WorldType;");
     while (query->Next()) {
         int id = query->GetInt(0);
         std::string name = query->GetString(1);
@@ -131,10 +138,9 @@ std::vector<WorldType *> WorldType::LoadAll(Database *db) {
         uint8_t avg_land_size = query->GetInt(4);
         uint8_t rivers = query->GetInt(5);
         uint8_t mountains = query->GetInt(6);
-        WorldType *type = new WorldType(id, name, description, percent_land, avg_land_size, rivers, mountains);
+        std::shared_ptr<WorldType> type = std::make_shared<WorldType>(id, name, description, percent_land, avg_land_size, rivers, mountains);
         types.push_back(type);
     }
-    delete query;
     return types;
 }
 

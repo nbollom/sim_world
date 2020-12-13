@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
 #include "database.h"
 
 class Material {
@@ -32,8 +33,9 @@ public:
 
     // DB
     void Save(Database *db = nullptr);
-    static Material* Load(uint32_t id, Database *db = nullptr);
-    static std::vector<Material*> LoadAll(Database *db = nullptr);
+    void Delete(Database *db = nullptr);
+    static std::shared_ptr<Material> Load(uint32_t id, Database *db = nullptr);
+    static std::vector<std::shared_ptr<Material>> LoadAll(Database *db = nullptr);
     static std::string GetClassName();
     static int GetCurrentVersion();
     static void UpdateInDB(Database *db, int db_version);
