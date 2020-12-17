@@ -38,15 +38,15 @@ void SettingsMenu::Draw() {
     if (_visible) {
         auto width = static_cast<float>(_state->width);
         auto height = static_cast<float>(_state->height);
-        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(width - 20, height - 20), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(width - 20.0f, height - 20.0f), ImGuiCond_Always);
         if (ImGui::Begin("Settings", &_visible, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBringToFrontOnFocus)) {
             // Add controls only if not minimised to save cpu cycles
-            float label_size = 150;
+            float label_size = 150.0f;
             Settings *settings = Settings::Shared();
             if (ImGui::BeginTabBar("##SettingsTabs")) {
                 if (ImGui::BeginTabItem("Graphics")) {
-                    ImGui::PushItemWidth(MIN(width - 100, 500));
+                    ImGui::PushItemWidth(MIN(width - 100.0f, 500.0f));
                     ImGui::AlignTextToFramePadding();
                     ImGui::Text("Resolution");
                     ImGui::SameLine(label_size);
@@ -74,7 +74,7 @@ void SettingsMenu::Draw() {
                     ImGui::AlignTextToFramePadding();
                     ImGui::Text("Font Scale");
                     ImGui::SameLine(label_size);
-                    ImGui::PushItemWidth(MIN(width - 100, 500));
+                    ImGui::PushItemWidth(MIN(width - 100.0f, 500.0f));
                     ImGui::SliderFloat("##FontScale", &settings->font_scale, 1.0f, 2.0f);
                     ImGui::PopItemWidth();
                     ImGui::Text("Show FPS");
@@ -87,14 +87,14 @@ void SettingsMenu::Draw() {
                 }
                 ImGui::EndTabBar();
             }
-            float button_height = MAX(height / 20, 50);
-            float button_width = MAX(width / 8, 100);
-            ImGui::SetCursorPosY(height - button_height - 20 - ImGui::GetStyle().WindowPadding.y);
+            float button_height = MAX(height / 20.0f, 50.0f);
+            float button_width = MAX(width / 8.0f, 100.0f);
+            ImGui::SetCursorPosY(height - button_height - 20.0f - ImGui::GetStyle().WindowPadding.y);
             if (ImGui::Button("Cancel", ImVec2(button_width, button_height))) {
                 settings->Load(); // Undo any changes
                 MenuStack::Shared()->PopMenu();
             }
-            ImGui::SameLine(width - button_width - 20 - ImGui::GetStyle().WindowPadding.x);
+            ImGui::SameLine(width - button_width - 20.0f - ImGui::GetStyle().WindowPadding.x);
             if (ImGui::Button("Save", ImVec2(button_width, button_height))) {
                 settings->Save(); // Persist any changes
                 if (_was_fullscreen != settings->fullscreen || _need_resize_window) {

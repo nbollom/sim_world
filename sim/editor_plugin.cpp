@@ -14,7 +14,7 @@ EditorPlugin::EditorPlugin(std::shared_ptr<Dialog> *dialog, State *state): _dial
 
 void EditorPlugin::Draw() {
     ImGui::BeginGroup();
-    ImGui::PushItemWidth(200);
+    ImGui::PushItemWidth(200.0f);
     if (ImGui::Button("New")) {
         if (_changed) {
             AskSave([&](){
@@ -76,13 +76,13 @@ bool EditorPlugin::HasChanges() {
 }
 
 void EditorPlugin::AskSave(const std::function<void ()>& on_complete) {
-    *_dialog = std::make_shared<Dialog>(_state, "Changes Detected", "Do you want to save your changes?");
-    (*_dialog)->AddButton("Yes", [&, on_complete]() {
-        Save();
+    *_dialog = std::make_shared<Dialog>(_state, "Changes Detected", "Do you want to save your changes?", 100, 20);
+    (*_dialog)->AddButton("No", [&, on_complete]() {
         on_complete();
         *_dialog = nullptr;
     });
-    (*_dialog)->AddButton("No", [&, on_complete]() {
+    (*_dialog)->AddButton("Yes", [&, on_complete]() {
+        Save();
         on_complete();
         *_dialog = nullptr;
     });

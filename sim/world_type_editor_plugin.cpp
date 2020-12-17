@@ -19,7 +19,7 @@ WorldTypeEditorPlugin::WorldTypeEditorPlugin(std::shared_ptr<Dialog> *dialog, St
 }
 
 void WorldTypeEditorPlugin::DrawForm() {
-    float label_size = 100;
+    float label_size = 100.0f;
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Name");
     ImGui::SameLine(label_size);

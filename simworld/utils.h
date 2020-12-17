@@ -5,7 +5,14 @@
 #ifndef SIMULATOR_UTILS_H
 #define SIMULATOR_UTILS_H
 
-#define MAX(x, y) x > y ? x : y
-#define MIN(x, y) x < y ? x : y
+template <class T>
+inline T MAX(T a, T b) {
+    return a > b ? a : b;
+}
+
+template <class T>
+inline T MIN(T a, T b) {
+    return a < b ? a : b;
+}
 
 #endif //SIMULATOR_UTILS_H

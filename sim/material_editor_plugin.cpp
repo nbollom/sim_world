@@ -15,7 +15,7 @@ MaterialEditorPlugin::MaterialEditorPlugin(std::shared_ptr<Dialog> *dialog, Stat
 }
 
 void MaterialEditorPlugin::DrawForm() {
-    float label_size = 100;
+    float label_size = 100.0f;
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Name");
     ImGui::SameLine(label_size);

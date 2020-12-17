@@ -162,8 +162,8 @@ int main(int argc, char *argv[]) {
             if (settings->show_fps) {
                 ImVec2 text_size = ImGui::CalcTextSize("999");
                 ImVec2 window_padding = ImGui::GetStyle().WindowPadding;
-                ImGui::SetNextWindowPos(ImVec2(static_cast<float>(state.width) - text_size.x - window_padding.x * 2, 0), ImGuiCond_Always);
-                ImGui::SetNextWindowSize(ImVec2(text_size.x + window_padding.x * 2, text_size.y), ImGuiCond_Always);
+                ImGui::SetNextWindowPos(ImVec2(static_cast<float>(state.width) - text_size.x - window_padding.x * 2.0f, 0.0f), ImGuiCond_Always);
+                ImGui::SetNextWindowSize(ImVec2(text_size.x + window_padding.x * 2.0f, text_size.y), ImGuiCond_Always);
                 ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav);
                 ImGui::Text("%03d", state.fps);
                 ImGui::End();

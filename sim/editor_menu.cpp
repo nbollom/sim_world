@@ -31,8 +31,8 @@ void EditorMenu::Draw() {
         }
         auto width = static_cast<float>(_state->width);
         auto height = static_cast<float>(_state->height);
-        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(width - 20, height - 20), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(width - 20.0f, height - 20.0f), ImGuiCond_Always);
         if (ImGui::Begin("Data Editors", &_visible, ImGuiWindowFlags_NoResize)) {
             // Add controls only if not minimised to save cpu cycles
             if (ImGui::BeginTabBar("##Editors")) {
