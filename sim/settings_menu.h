@@ -9,7 +9,7 @@
 
 #include "menu.h"
 #include <vector>
-#import <string>
+#include <string>
 
 class SettingsMenu : public Menu {
 

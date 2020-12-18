@@ -8,10 +8,10 @@
 WorldTypeEditorPlugin::WorldTypeEditorPlugin(std::shared_ptr<Dialog> *dialog, State *state): EditorPlugin(dialog, state) {
     strcpy(_name, "");
     strcpy(_description, "");
-    _percent_land = 0;
-    _avg_land_size = 0;
-    _rivers = 0;
-    _mountains = 0;
+    _percent_land = 1;
+    _avg_land_size = 1;
+    _rivers = 1;
+    _mountains = 1;
     std::vector<std::shared_ptr<WorldType>> world_types = WorldType::LoadAll();
     for (const auto& world_type: world_types) {
         _items[world_type->ID()] = world_type->Name();
@@ -19,7 +19,7 @@ WorldTypeEditorPlugin::WorldTypeEditorPlugin(std::shared_ptr<Dialog> *dialog, St
 }
 
 void WorldTypeEditorPlugin::DrawForm() {
-    float label_size = 100.0f;
+    float label_size = 150.0f;
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Name");
     ImGui::SameLine(label_size);
@@ -38,6 +38,21 @@ void WorldTypeEditorPlugin::DrawForm() {
     if (ImGui::SliderInt("##PercentLand", &_percent_land, 1, 100)) {
         _changed = true;
     }
+    ImGui::Text("Average land size %%");
+    ImGui::SameLine(label_size);
+    if (ImGui::SliderInt("##AvgLand", &_avg_land_size, 1, 100)) {
+        _changed = true;
+    }
+    ImGui::Text("Rivers");
+    ImGui::SameLine(label_size);
+    if (ImGui::SliderInt("##Rivers", &_rivers, 1, 10)) {
+        _changed = true;
+    }
+    ImGui::Text("Mountains");
+    ImGui::SameLine(label_size);
+    if (ImGui::SliderInt("##Mountains", &_mountains, 1, 10)) {
+        _changed = true;
+    }
 }
 
 void WorldTypeEditorPlugin::Load(int64_t id) {
@@ -45,10 +60,10 @@ void WorldTypeEditorPlugin::Load(int64_t id) {
         _world_type = nullptr;
         strcpy(_name, "");
         strcpy(_description, "");
-        _percent_land = 0;
-        _avg_land_size = 0;
-        _rivers = 0;
-        _mountains = 0;
+        _percent_land = 1;
+        _avg_land_size = 1;
+        _rivers = 1;
+        _mountains = 1;
     } else {
         _world_type = WorldType::Load(id);
         strcpy(_name, _world_type->Name().c_str());
